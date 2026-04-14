@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector, useAppSelector as useSelector } from '../../store/hooks';
-import { fetchTasks, createTask, deleteTask, updateTask } from '../tasks/taskSlice';
+import { fetchTasks, createTask, deleteTask, updateTask, uploadTaskAttachments } from '../tasks/taskSlice';
 import { logout } from '../auth/authSlice';
-import { Plus, LogOut, CheckCircle, Clock, Trash2, Shield } from 'lucide-react';
+import { Plus, LogOut, CheckCircle, Clock, Trash2, Shield, Paperclip, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
@@ -145,6 +145,46 @@ const Dashboard: React.FC = () => {
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
+                </div>
+              </div>
+              {/* Attachments Section */}
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 border-t border-gray-200">
+                <div className="flex flex-col space-y-2">
+                  <div className="text-sm font-medium text-gray-700 flex justify-between items-center">
+                    <span>Attachments ({task.attachments?.length || 0}/3)</span>
+                    {(task.attachments?.length || 0) < 3 && (
+                      <label className="cursor-pointer text-indigo-600 hover:text-indigo-500 flex items-center text-xs">
+                        <Upload className="h-3 w-3 mr-1" />
+                        Upload PDF
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const formData = new FormData();
+                              formData.append('files', e.target.files[0]);
+                              dispatch(uploadTaskAttachments({ id: task.id, formData }));
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  {task.attachments && task.attachments.length > 0 && (
+                    <ul className="mt-2 border border-gray-200 rounded-md divide-y divide-gray-200">
+                      {task.attachments.map((att) => (
+                        <li key={att.id} className="pl-3 pr-4 py-2 flex items-center justify-between text-sm">
+                          <div className="w-0 flex-1 flex items-center text-indigo-600">
+                            <Paperclip className="flex-shrink-0 h-4 w-4 text-gray-400" />
+                            <a href={`http://localhost:5000${att.url}`} target="_blank" rel="noreferrer" className="ml-2 truncate hover:text-indigo-500">
+                              {att.filename}
+                            </a>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>

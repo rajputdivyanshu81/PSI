@@ -148,8 +148,52 @@ export const deleteTask = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     await prisma.task.delete({ where: { id } });
-
     res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 6. Upload Attachments
+export const uploadAttachments = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { id } = req.params;
+    const task = await prisma.task.findUnique({ 
+      where: { id },
+      include: { attachments: true }
+    });
+
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    if (task.userId !== req.user.id && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+
+    if (task.attachments.length + req.files.length > 3) {
+      return res.status(400).json({ error: 'A task can have a maximum of 3 attachments' });
+    }
+
+    const newAttachments = req.files.map((file) => ({
+      taskId: task.id,
+      url: `/uploads/${file.filename}`,
+      filename: file.originalname,
+    }));
+
+    await prisma.taskAttachment.createMany({
+      data: newAttachments,
+    });
+
+    const updatedTask = await prisma.task.findUnique({
+      where: { id },
+      include: { attachments: true },
+    });
+
+    res.json(updatedTask);
   } catch (error) {
     next(error);
   }

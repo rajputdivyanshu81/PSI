@@ -9,6 +9,11 @@ export interface Task {
   priority: string;
   dueDate: string | null;
   createdAt: string;
+  attachments?: {
+    id: string;
+    url: string;
+    filename: string;
+  }[];
 }
 
 interface TaskState {
@@ -73,6 +78,22 @@ export const deleteTask = createAsyncThunk(
   }
 );
 
+export const uploadTaskAttachments = createAsyncThunk(
+  'tasks/uploadAttachments',
+  async ({ id, formData }: { id: string; formData: FormData }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/tasks/${id}/attachments`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.error || 'Failed to upload attachments');
+    }
+  }
+);
+
 const taskSlice = createSlice({
   name: 'tasks',
   initialState,
@@ -106,6 +127,13 @@ const taskSlice = createSlice({
       // Delete Task
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.tasks = state.tasks.filter((t) => t.id !== action.payload);
+      })
+      // Upload Attachments
+      .addCase(uploadTaskAttachments.fulfilled, (state, action) => {
+        const index = state.tasks.findIndex((t) => t.id === action.payload.id);
+        if (index !== -1) {
+          state.tasks[index] = action.payload;
+        }
       });
   },
 });
