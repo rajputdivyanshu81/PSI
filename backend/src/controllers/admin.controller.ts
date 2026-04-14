@@ -40,7 +40,7 @@ export const createUser = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const updateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { email, role, password } = req.body;
 
     const data: any = {};
@@ -65,7 +65,7 @@ export const updateUser = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     await prisma.user.delete({ where: { id } });
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
@@ -75,7 +75,7 @@ export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const assignTask = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { taskId } = req.params;
+    const taskId = req.params.taskId as string;
     const { userId } = req.body;
 
     const task = await prisma.task.update({

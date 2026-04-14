@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 export const createTask = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { title, description, status, priority, dueDate } = req.body;
-    
+
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
     const task = await prisma.task.create({
@@ -31,21 +31,25 @@ export const getTasks = async (req: AuthRequest, res: Response, next: NextFuncti
   try {
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { status, priority, sortBy, sortOrder, page = '1', limit = '10' } = req.query;
+    const status = req.query.status as string | undefined;
+    const priority = req.query.priority as string | undefined;
+    const sortBy = req.query.sortBy as string | undefined;
+    const sortOrder = req.query.sortOrder as string | undefined;
+    const page = parseInt((req.query.page as string) || '1');
+    const limit = parseInt((req.query.limit as string) || '10');
 
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const take = parseInt(limit as string);
+    const skip = (page - 1) * limit;
 
     const where: any = {};
     if (req.user.role !== 'ADMIN') {
       where.userId = req.user.id; // Users see only their own tasks
     }
-    if (status) where.status = status as string;
-    if (priority) where.priority = priority as string;
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
 
     const orderBy: any = {};
     if (sortBy) {
-      orderBy[sortBy as string] = sortOrder === 'desc' ? 'desc' : 'asc';
+      orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
     } else {
       orderBy.createdAt = 'desc';
     }
@@ -54,7 +58,7 @@ export const getTasks = async (req: AuthRequest, res: Response, next: NextFuncti
       where,
       orderBy,
       skip,
-      take,
+      take: limit,
       include: {
         user: {
           select: { email: true, role: true }
@@ -69,9 +73,9 @@ export const getTasks = async (req: AuthRequest, res: Response, next: NextFuncti
       data: tasks,
       meta: {
         total,
-        page: parseInt(page as string),
-        limit: take,
-        totalPages: Math.ceil(total / take)
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
       }
     });
   } catch (error) {
@@ -84,7 +88,7 @@ export const getTaskById = async (req: AuthRequest, res: Response, next: NextFun
   try {
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const task = await prisma.task.findUnique({
       where: { id },
       include: { attachments: true }
@@ -107,7 +111,7 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
   try {
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { title, description, status, priority, dueDate } = req.body;
 
     const task = await prisma.task.findUnique({ where: { id } });
@@ -139,7 +143,7 @@ export const deleteTask = async (req: AuthRequest, res: Response, next: NextFunc
   try {
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const task = await prisma.task.findUnique({ where: { id } });
     if (!task) return res.status(404).json({ error: 'Task not found' });
 
@@ -159,8 +163,8 @@ export const uploadAttachments = async (req: AuthRequest, res: Response, next: N
   try {
     if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { id } = req.params;
-    const task = await prisma.task.findUnique({ 
+    const id = req.params.id as string;
+    const task = await prisma.task.findUnique({
       where: { id },
       include: { attachments: true }
     });
@@ -178,7 +182,7 @@ export const uploadAttachments = async (req: AuthRequest, res: Response, next: N
       return res.status(400).json({ error: 'A task can have a maximum of 3 attachments' });
     }
 
-    const newAttachments = req.files.map((file) => ({
+    const newAttachments = req.files.map((file: Express.Multer.File) => ({
       taskId: task.id,
       url: `/uploads/${file.filename}`,
       filename: file.originalname,

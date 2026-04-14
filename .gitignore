@@ -5,3 +5,7 @@ build
 coverage
 .DS_Store
 *.log
+uploads
+backend/uploads
+backend/src/check_attachments.ts
+backend/src/scratch_check_db.js

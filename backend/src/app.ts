@@ -21,7 +21,7 @@ app.use(helmet({ crossOriginResourcePolicy: false })); // Allow cross-origin for
 app.use(morgan('dev'));
 
 // Static files
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 setupSwagger(app);
