@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import taskRoutes from './routes/task.routes';
 import adminRoutes from './routes/admin.routes';
+import { setupSwagger } from './swagger';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 // Routes
+setupSwagger(app);
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/admin', adminRoutes);
