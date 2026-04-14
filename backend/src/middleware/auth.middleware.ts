@@ -18,7 +18,8 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   const token = header.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as {
+    const secret: string = process.env.JWT_SECRET || 'secret';
+    const decoded = jwt.verify(token, secret) as unknown as {
       user: { id: string; role: string };
     };
     req.user = decoded.user;
