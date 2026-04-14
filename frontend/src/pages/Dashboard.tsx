@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector, useAppSelector as useSelector } from '../../store/hooks';
 import { fetchTasks, createTask, deleteTask, updateTask } from '../tasks/taskSlice';
 import { logout } from '../auth/authSlice';
-import { Plus, LogOut, CheckCircle, Clock, Trash2 } from 'lucide-react';
+import { Plus, LogOut, CheckCircle, Clock, Trash2, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -36,6 +37,12 @@ const Dashboard: React.FC = () => {
               <h1 className="text-xl font-bold text-indigo-600">TaskFlow</h1>
             </div>
             <div className="flex items-center space-x-4">
+              {user?.role === 'ADMIN' && (
+                <Link to="/admin" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+                  <Shield className="h-4 w-4 mr-1 text-indigo-500" />
+                  Admin Panel
+                </Link>
+              )}
               <span className="text-gray-700 font-medium">Hello, {user?.email}</span>
               <button
                 onClick={() => dispatch(logout())}

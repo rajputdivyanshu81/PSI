@@ -3,6 +3,7 @@ import { useAppSelector } from './store/hooks';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { token } = useAppSelector((state) => state.auth);
@@ -20,6 +21,14 @@ function App() {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/admin" 
+          element={
+            <PrivateRoute>
+              <AdminDashboard />
             </PrivateRoute>
           } 
         />
