@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAppSelector } from './store/hooks';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { token } = useAppSelector((state) => state.auth);
@@ -18,10 +19,7 @@ function App() {
           path="/dashboard" 
           element={
             <PrivateRoute>
-              <div className="p-8">
-                <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p>Welcome to the Task Management System!</p>
-              </div>
+              <Dashboard />
             </PrivateRoute>
           } 
         />
