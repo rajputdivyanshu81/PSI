@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchUsers } from '../admin/adminSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchUsers } from '../features/admin/adminSlice';
 import { Users, Shield, Clock } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {

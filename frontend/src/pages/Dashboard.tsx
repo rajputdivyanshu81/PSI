@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector, useAppSelector as useSelector } from '../../store/hooks';
-import { fetchTasks, createTask, deleteTask, updateTask, uploadTaskAttachments } from '../tasks/taskSlice';
-import { logout } from '../auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchTasks, createTask, deleteTask, updateTask, uploadTaskAttachments } from '../features/tasks/taskSlice';
+import { logout } from '../features/auth/authSlice';
 import { Plus, LogOut, CheckCircle, Clock, Trash2, Shield, Paperclip, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

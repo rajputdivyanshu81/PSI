@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { loginUser } from '../auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loginUser } from '../features/auth/authSlice';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
