@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import prisma from '../db';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,6 +36,49 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     res.status(201).json({
       message: 'User registered successfully',
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role,
+      },
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
+      expiresIn: '1d',
+    });
+
+    res.json({
+      message: 'Logged in successfully',
+      token,
       user: {
         id: user.id,
         email: user.email,
