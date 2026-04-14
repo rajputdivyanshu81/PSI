@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAppSelector } from './store/hooks';
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const { token } = useAppSelector((state) => state.auth);
+  return token ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-gray-100">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route 
+          path="/dashboard" 
+          element={
+            <PrivateRoute>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
+                <p>Welcome to the Task Management System!</p>
+              </div>
+            </PrivateRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;
